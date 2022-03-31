@@ -514,7 +514,7 @@ int DNGWriter::write(const char *filename, const Camera *camera,
 	uint32_t whiteLevel = (1 << info->bitsPerSample) - 1;
 
 	if (metadata.contains(controls::SensorBlackLevels)) {
-		Span<const int32_t> levels =
+		Span<const int32_t, 4> levels =
 			*metadata.get(controls::SensorBlackLevels);
 
 		/*
