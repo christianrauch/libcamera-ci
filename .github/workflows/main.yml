@@ -1,0 +1,55 @@
+name: CI (amd64, native)
+
+on:
+  push:
+    branches: [ "ci" ]
+  pull_request:
+    branches: [ "ci" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["22.04"]
+        compiler:
+          - { CC: gcc-12,   CXX: g++-12 }
+          - { CC: clang-14, CXX: clang++-14 }
+
+    container:
+      image: ubuntu:${{ matrix.version }}
+
+    steps:
+      - name: install dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt update
+          apt install --no-install-recommends -y g++-12 clang-14
+          # required
+          apt install --no-install-recommends -y git meson libyaml-dev python3-yaml python3-ply python3-jinja2 libgnutls28-dev openssl
+          apt install --no-install-recommends -y ca-certificates
+          # optional
+          apt install --no-install-recommends -y cmake libdw-dev libunwind-dev libboost-dev libudev-dev python3-sphinx doxygen graphviz texlive-latex-extra libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libevent-dev qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev liblttng-ust-dev python3-jinja2 lttng-tools libexif-dev libjpeg-dev libpython3-dev
+
+      - name: install meson via pip
+        if: ${{ matrix.version == '20.04' }}
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt install --no-install-recommends -y python3-pip
+          pip3 install --user --upgrade meson
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: build
+        env:
+          CC: ${{ matrix.compiler.CC }}
+          CXX: ${{ matrix.compiler.CXX }}
+        run: |
+          meson build -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
+          meson compile -C build
+          meson install -C build
