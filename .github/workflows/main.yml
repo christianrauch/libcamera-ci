@@ -50,6 +50,6 @@ jobs:
           CC: ${{ matrix.compiler.CC }}
           CXX: ${{ matrix.compiler.CXX }}
         run: |
-          meson build -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
+          meson build -Dbuildtype=release -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
           meson compile -C build
           meson install -C build
