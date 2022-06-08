@@ -1,0 +1,47 @@
+name: CI (aarch64, cross)
+
+on:
+  push:
+    branches: [ "ci" ]
+  pull_request:
+    branches: [ "ci" ]
+
+  workflow_dispatch:
+
+jobs:
+  arm64:
+    runs-on: ubuntu-22.04
+
+    container:
+      image: debian:11
+
+    steps:
+      - name: install cross-compile dependencies
+        run: |
+          dpkg --add-architecture arm64
+          apt update
+          apt install --no-install-recommends -y dpkg-dev
+
+      - name: install dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt update
+          apt install --no-install-recommends -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          # required
+          apt install --no-install-recommends -y git meson libyaml-dev:arm64 python3-yaml python3-ply python3-jinja2 libgnutls28-dev:arm64 openssl
+          apt install --no-install-recommends -y ca-certificates
+          # optional
+          apt install --no-install-recommends -y cmake libdw-dev:arm64 libunwind-dev:arm64 libboost-dev:arm64 libudev-dev:arm64 python3-sphinx doxygen graphviz texlive-latex-extra libgstreamer1.0-dev:arm64 libgstreamer-plugins-base1.0-dev:arm64 libevent-dev:arm64 qtbase5-dev:arm64 libqt5core5a:arm64 libqt5gui5:arm64 libqt5widgets5:arm64 qttools5-dev-tools libtiff-dev:arm64 liblttng-ust-dev:arm64 python3-jinja2 lttng-tools libexif-dev:arm64 libjpeg-dev:arm64 libpython3-dev:arm64
+
+      - name: debcrossgen
+        run: |
+          /usr/share/meson/debcrossgen --arch arm64 -o /usr/share/meson/arm64-cross
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: build
+        run: |
+          meson build --cross-file /usr/share/meson/arm64-cross -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
+          meson compile -C build
+          meson install -C build
