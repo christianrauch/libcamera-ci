@@ -42,6 +42,6 @@ jobs:
 
       - name: build
         run: |
-          meson build --cross-file /usr/share/meson/arm64-cross -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
+          meson build --cross-file /usr/share/meson/arm64-cross -Dbuildtype=release -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
           meson compile -C build
           meson install -C build
