@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
+          - { CC: gcc-10,   CXX: g++-10 }
           - { CC: gcc-12,   CXX: g++-12 }
           - { CC: clang-14, CXX: clang++-14 }
 
@@ -35,7 +36,7 @@ jobs:
           install: |
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install --no-install-recommends -y g++-12 clang-14
+            apt install --no-install-recommends -y g++-10 g++-12 clang-14
             # required
             apt install --no-install-recommends -y git meson libyaml-dev python3-yaml python3-ply python3-jinja2 libgnutls28-dev openssl
             apt install --no-install-recommends -y ca-certificates
