@@ -12,8 +12,16 @@ jobs:
   arm64:
     runs-on: ubuntu-22.04
 
+    strategy:
+      fail-fast: false
+      matrix:
+        gcc_version: [9, 10]
+
     container:
       image: debian:11
+
+    env:
+      V: ${{ matrix.gcc_version }}
 
     steps:
       - name: install cross-compile dependencies
@@ -26,7 +34,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt update
-          apt install --no-install-recommends -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          apt install --no-install-recommends -y gcc-$V-aarch64-linux-gnu g++-$V-aarch64-linux-gnu
           # required
           apt install --no-install-recommends -y git meson libyaml-dev:arm64 python3-yaml python3-ply python3-jinja2 libgnutls28-dev:arm64 openssl
           apt install --no-install-recommends -y ca-certificates
@@ -35,13 +43,13 @@ jobs:
 
       - name: debcrossgen
         run: |
-          /usr/share/meson/debcrossgen --arch arm64 -o /usr/share/meson/arm64-cross
+          /usr/share/meson/debcrossgen --gccsuffix -$V --arch arm64 -o /usr/share/meson/arm64-cross
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
       - name: build
         run: |
-          meson build --cross-file /usr/share/meson/arm64-cross -Dbuildtype=release -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled
+          meson setup --cross-file /usr/share/meson/arm64-cross -Dbuildtype=release -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled build
           meson compile -C build
           meson install -C build
