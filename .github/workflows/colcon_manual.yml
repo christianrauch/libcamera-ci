@@ -1,0 +1,28 @@
+name: libcamera manual colcon build
+
+on: push
+
+jobs:
+  build:
+    name: libcamera
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ubuntu:22.04
+
+    steps:
+      - name: install ROS2
+        uses: ros-tooling/setup-ros@v0.6
+
+      - name: install colcon-meson
+        run: |
+          apt install -y python3-colcon-meson
+
+      - name: build
+        run: |
+          mkdir -p ~/libcamera_ws/src
+          git clone https://github.com/christianrauch/libcamera.git -b package-xml ~/libcamera_ws/src/libcamera
+          cd ~/libcamera_ws
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro rolling
+          colcon build --event-handlers=console_direct+ --meson-args --buildtype=release --auto-features=disabled
