@@ -1,0 +1,40 @@
+name: libcamera colcon build
+
+on:
+  push:
+    branches: [ "ci" ]
+  pull_request:
+    branches: [ "ci" ]
+
+jobs:
+  build:
+    name: libcamera
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ubuntu:22.04
+
+    steps:
+      - name: fetch source
+        uses: actions/checkout@v2
+
+      - name: install ROS2
+        uses: ros-tooling/setup-ros@v0.3
+
+      - name: install colcon-meson
+        run: |
+          pip install git+https://github.com/colcon/colcon-meson.git@main
+
+      - name: build
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: libcamera
+          target-ros2-distro: rolling
+          skip-tests: true
+          colcon-defaults: |
+            {
+              "build": {
+                "meson-args": ["--buildtype=release", "--auto-features=disabled", "-Dtest=false", "-Dv4l2=true"]
+              }
+            }
+          colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
