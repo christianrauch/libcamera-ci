@@ -1,0 +1,79 @@
+name: CI (runner, native)
+
+on:
+  push:
+    branches: [ "ci" ]
+  pull_request:
+    branches: [ "ci" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - { CC: gcc-10,   CXX: g++-10 }
+          - { CC: gcc-12,   CXX: g++-12 }
+          - { CC: clang-14, CXX: clang++-14 }
+
+    env:
+      CC: ${{ matrix.compiler.CC }}
+      CXX: ${{ matrix.compiler.CXX }}
+
+    steps:
+      # load the "Virtual Media Controller Driver" (vimc)
+      # this creates a virtual camera for unit tests
+      - name: load vimc kernel module
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install --no-install-recommends -y kmod linux-modules-extra-$(uname -r)
+          sudo modprobe vimc
+          sudo modprobe vim2m
+          sudo modprobe vivid
+          # check for loaded modules
+          lsmod | grep "vimc\|vim2m\|vivid"
+          sudo apt install --no-install-recommends -y v4l-utils
+          ls -alh /dev/video*
+          # list devices
+          v4l2-ctl --list-devices
+
+
+      - name: install dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install --no-install-recommends -y g++-10 g++-12 clang-14
+          # required
+          sudo apt install --no-install-recommends -y git meson libyaml-dev python3-yaml python3-ply python3-jinja2 libgnutls28-dev openssl
+          sudo apt install --no-install-recommends -y ca-certificates
+          # optional
+          sudo apt install --no-install-recommends -y cmake libdw-dev libunwind-dev libboost-dev libudev-dev python3-sphinx doxygen graphviz texlive-latex-extra libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libevent-dev qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev liblttng-ust-dev python3-jinja2 lttng-tools libexif-dev libjpeg-dev libpython3-dev
+
+      - name: install meson via pip
+        if: ${{ matrix.version == '20.04' }}
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt install --no-install-recommends -y python3-pip
+          pip3 install --user --upgrade meson
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: build
+        run: |
+          meson setup -Dbuildtype=release -Dwarning_level=2 --auto-features=enabled -Dtest=true -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled build
+          meson compile -C build
+          sudo meson install -C build
+
+      # - name: test (ipa_data_serializer_test)
+      #   run: |
+      #     ./build/test/serialization/ipa_data_serializer_test
+
+      - name: test
+        run: |
+          meson test -C build
