@@ -23,12 +23,24 @@ jobs:
 
     container:
       image: ubuntu:${{ matrix.version }}
+      options: --privileged
 
     env:
       CC: ${{ matrix.compiler.CC }}
       CXX: ${{ matrix.compiler.CXX }}
 
     steps:
+      # load the "Virtual Media Controller Driver" (vimc)
+      # this creates a virtual camera for unit tests
+      - name: load vimc kernel module
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt update
+          apt install --no-install-recommends -y kmod linux-modules-extra-$(uname -r)
+          modprobe vimc
+          modprobe vim2m
+          modprobe vivid
+
       - name: install dependencies
         run: |
           export DEBIAN_FRONTEND=noninteractive
