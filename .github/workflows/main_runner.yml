@@ -71,8 +71,20 @@ jobs:
           sudo meson install -C build
 
       - name: test (ipa_data_serializer_test)
+        continue-on-error: true
         run: |
+          echo "ipa_data_serializer_test"
           sudo ./build/test/serialization/ipa_data_serializer_test
+          echo "camera_reconfigure"
+          sudo ./build/test/camera/camera_reconfigure
+          echo "single_stream_test"
+          sudo ./build/test/gstreamer/single_stream_test
+          echo "log_process"
+          sudo ./build/test/log/log_process
+          echo "unixsocket_ipc"
+          sudo ./build/test/ipc/unixsocket_ipc
+          echo "process_test"
+          sudo ./build/test/process/process_test
 
       - name: test
         run: |
