@@ -40,7 +40,7 @@ jobs:
           sudo apt install --no-install-recommends -y v4l-utils
           ls -alh /dev/video*
           # list devices
-          v4l2-ctl --list-devices
+          sudo v4l2-ctl --list-devices
 
 
       - name: install dependencies
@@ -70,10 +70,10 @@ jobs:
           meson compile -C build
           sudo meson install -C build
 
-      # - name: test (ipa_data_serializer_test)
-      #   run: |
-      #     ./build/test/serialization/ipa_data_serializer_test
+      - name: test (ipa_data_serializer_test)
+        run: |
+          sudo ./build/test/serialization/ipa_data_serializer_test
 
       - name: test
         run: |
-          meson test -C build
+          sudo meson test -C build
