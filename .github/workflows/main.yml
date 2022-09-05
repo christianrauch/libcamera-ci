@@ -40,6 +40,8 @@ jobs:
           modprobe vimc
           modprobe vim2m
           modprobe vivid
+          # check for loaded modules
+          lsmod | grep "vimc\|vim2m\|vivid"
 
       - name: install dependencies
         run: |
