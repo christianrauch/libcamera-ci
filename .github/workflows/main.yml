@@ -43,6 +43,7 @@ jobs:
           # check for loaded modules
           lsmod | grep "vimc\|vim2m\|vivid"
           apt install --no-install-recommends -y v4l-utils
+          ls -alh /dev/video*
           # list devices
           v4l2-ctl --list-devices
 
