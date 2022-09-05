@@ -50,6 +50,10 @@ jobs:
 
       - name: build
         run: |
-          meson setup --cross-file /usr/share/meson/arm64-cross -Dbuildtype=release -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled build
+          meson setup --cross-file /usr/share/meson/arm64-cross -Dbuildtype=release -Dwarning_level=2 --auto-features=enabled -Dtest=true -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled build
           meson compile -C build
           meson install -C build
+
+      - name: test
+        run: |
+          meson test -C build

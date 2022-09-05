@@ -24,6 +24,10 @@ jobs:
     container:
       image: ubuntu:${{ matrix.version }}
 
+    env:
+      CC: ${{ matrix.compiler.CC }}
+      CXX: ${{ matrix.compiler.CXX }}
+
     steps:
       - name: install dependencies
         run: |
@@ -47,10 +51,11 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: build
-        env:
-          CC: ${{ matrix.compiler.CC }}
-          CXX: ${{ matrix.compiler.CXX }}
         run: |
-          meson setup -Dbuildtype=release -Dwarning_level=2 -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled build
+          meson setup -Dbuildtype=release -Dwarning_level=2 --auto-features=enabled -Dtest=true -Dandroid=enabled -Dv4l2=true -Dpycamera=enabled build
           meson compile -C build
           meson install -C build
+
+      - name: test
+        run: |
+          meson test -C build
