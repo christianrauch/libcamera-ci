@@ -68,6 +68,10 @@ jobs:
           meson compile -C build
           meson install -C build
 
+      # - name: test (ipa_data_serializer_test)
+      #   run: |
+      #     ./build/test/serialization/ipa_data_serializer_test
+
       - name: test
         run: |
           meson test -C build
