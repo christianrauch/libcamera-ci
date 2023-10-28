@@ -15,10 +15,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gcc_version: [9, 10]
+        gcc_version: [11, 12]
 
     container:
-      image: debian:11
+      image: debian:12
 
     env:
       V: ${{ matrix.gcc_version }}
