@@ -5,14 +5,14 @@ on: push
 jobs:
   build:
     name: libcamera
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
-      image: ubuntu:22.04
+      image: ubuntu:24.04
 
     steps:
       - name: install ROS2
-        uses: ros-tooling/setup-ros@v0.6
+        uses: ros-tooling/setup-ros@v0.7
 
       - name: install colcon-meson
         run: |

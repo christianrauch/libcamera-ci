@@ -5,20 +5,20 @@ on: push
 jobs:
   build:
     name: libcamera
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
-      image: ubuntu:22.04
+      image: ubuntu:24.04
 
     steps:
       - name: fetch source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: install ROS2
-        uses: ros-tooling/setup-ros@v0.6
+        uses: ros-tooling/setup-ros@v0.7
 
       - name: build
-        uses: ros-tooling/action-ros-ci@v0.3
+        uses: ros-tooling/action-ros-ci@v0.4
         with:
           package-name: libcamera
           target-ros2-distro: rolling
