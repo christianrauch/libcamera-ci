@@ -1,4 +1,4 @@
-name: CI (amd64, native)
+name: CI
 
 on:
   push:
@@ -10,16 +10,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
       matrix:
-        version: ["22.04"]
+        runner:
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
+        version: ["24.04"]
         compiler:
           - { CC: gcc-10,   CXX: g++-10 }
-          - { CC: gcc-12,   CXX: g++-12 }
-          - { CC: clang-14, CXX: clang++-14 }
+          - { CC: gcc-14,   CXX: g++-14 }
+          - { CC: clang-19, CXX: clang++-19 }
 
     container:
       image: ubuntu:${{ matrix.version }}
@@ -29,7 +32,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt update
-          apt install --no-install-recommends -y g++-10 g++-12 clang-14
+          apt install --no-install-recommends -y g++-10 g++-14 clang-19
           # required
           apt install --no-install-recommends -y git meson libyaml-dev python3-yaml python3-ply python3-jinja2 libgnutls28-dev openssl
           apt install --no-install-recommends -y ca-certificates
@@ -44,7 +47,7 @@ jobs:
           pip3 install --user --upgrade meson
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: build
         env:
