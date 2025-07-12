@@ -1,2 +1,2 @@
 meson-args:
-- -Dpipelines=['all']
+- -Dpipelines=['ipu3', 'rpi/pisp', 'rpi/vc4', 'simple', 'uvcvideo']
